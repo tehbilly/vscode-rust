@@ -425,8 +425,13 @@ export class Rustup {
      */
     private static async invoke(args: string[], logger: ChildLogger): Promise<string | undefined> {
         const rustupExe = Rustup.getRustupExecutable();
+        let env = Object.assign({}, process.env);
+        const ruc = getUserConfiguration();
+        if (ruc) {
+            env = Object.assign(env, ruc['env']);
+        }
         const functionLogger = logger.createChildLogger(`invoke: rustupExe=${rustupExe}, args=${JSON.stringify(args)}: `);
-        const result = await OutputtingProcess.spawn(rustupExe, args, undefined);
+        const result = await OutputtingProcess.spawn(rustupExe, args, {env: env});
         if (!result.success) {
             functionLogger.error('failed');
             return undefined;
@@ -447,8 +452,13 @@ export class Rustup {
      */
     private static async invokeWithOutputChannel(args: string[], logger: ChildLogger,
         outputChannelName: string): Promise<string | undefined> {
+        let env = Object.assign({}, process.env);
+        const ruc = getUserConfiguration();
+        if (ruc) {
+            env = Object.assign(env, ruc['env']);
+        }
         const functionLogger = logger.createChildLogger(`invokeWithOutputChannel(args=${JSON.stringify(args)}, outputChannelName=${outputChannelName}): `);
-        const result = await OutputChannelProcess.create(this.getRustupExecutable(), args, undefined, outputChannelName);
+        const result = await OutputChannelProcess.create(this.getRustupExecutable(), args, {env: env}, outputChannelName);
         if (!result.success) {
             functionLogger.error('failed to start');
             return undefined;
